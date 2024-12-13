@@ -1,4 +1,6 @@
-library(Rcpp)
+if (!require(Rcpp)) install.packages("Rcpp", dependencies = TRUE); suppressPackageStartupMessages(library(Rcpp))
+if (!require(RcppArmadillo)) install.packages("RcppArmadillo", dependencies = TRUE); suppressPackageStartupMessages(library(RcppArmadillo))
+
 sourceCpp("VI_functions.cpp")
 sourceCpp("ELBO_functions.cpp")
 

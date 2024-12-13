@@ -1,7 +1,8 @@
 ################################################################################
 # LOAD THE FUNCTIONS NEEDED FOR MCMC
 ################################################################################
-library(Rcpp)
+if (!require(Rcpp)) install.packages("Rcpp", dependencies = TRUE); suppressPackageStartupMessages(library(Rcpp))
+
 sourceCpp("MCMC_functions.cpp")
 
 # Define Some Auxillary Functions
@@ -83,7 +84,7 @@ iPsi.j0 = lapply(seq_len(J), function(j){solve(Psi.j0[[j]])})
 alpha.start = 2
 m.start = 2
 
-library(extraDistr)
+if (!require(extraDistr)) install.packages("extraDistr", dependencies = TRUE); suppressPackageStartupMessages(library(extraDistr))
 # True weights
 beta.start = as.numeric(rdirichlet(n = 1, alpha = rep(1/L, L))) # Starting beta
 pi.start = replicate(n = J, list())
@@ -443,7 +444,8 @@ samples.thin = seq((burn + 1), (num_iter), by = 20)
 
 log_like <- ll[samples.thin]
 
-library(tidyverse)
+if (!require(tidyverse)) install.packages("tidyverse", dependencies = TRUE); suppressPackageStartupMessages(library(tidyverse))
+
 # RUN TrueLL_MVNIG.R BEFORE THIS PLOT
 ll_plot <- data.frame(x = 1:length(log_like), y = log_like) %>% ggplot(aes(x = x, y = y)) + geom_line() +
   labs(title = "Traceplot of log-likelihood", x = "Iteration post burn-in", y = "") +
@@ -468,7 +470,8 @@ ll_plot <- data.frame(x = 1:length(log_like), y = log_like) %>% ggplot(aes(x = x
   ) 
 
 
-library(forecast)
+if (!require(forecast)) install.packages("forecast", dependencies = TRUE); suppressPackageStartupMessages(library(forecast))
+
 ACF_plot <-  ggAcf(x = log_like, lag.max = 40) + ggtitle("ACF of log-likelihood") + labs(y = "") +
   # ylim(c(-0.35, 0.65)) + 
   theme_classic() +  
@@ -495,9 +498,12 @@ ACF_plot <-  ggAcf(x = log_like, lag.max = 40) + ggtitle("ACF of log-likelihood"
 ll_plot
 ACF_plot
 
+if (!require(gridExtra)) install.packages("gridExtra", dependencies = TRUE); suppressPackageStartupMessages(library(gridExtra))
+
 gridExtra::grid.arrange(ll_plot, ACF_plot, ncol = 2)
 
-library(latex2exp)
+if (!require(latex2exp)) install.packages("latex2exp", dependencies = TRUE); suppressPackageStartupMessages(library(latex2exp))
+
 alpha_plot <- data.frame(alpha = unlist(alpha.samples[samples.thin]),
                          Iteration = 1:length(samples.thin)) %>% ggplot(aes(x = Iteration, y = alpha)) + geom_line() +
   labs(
@@ -551,6 +557,8 @@ gamma_plot <- data.frame(m = unlist(m.samples[samples.thin]),
     legend.text=element_text(size=14)
   )
 
+if (!require(gridExtra)) install.packages("gridExtra", dependencies = TRUE); suppressPackageStartupMessages(library(gridExtra))
+
 gridExtra::grid.arrange(alpha_plot, gamma_plot, ncol = 2)
 ################################################################################
 # CLUSTERING PERFORMANCE
@@ -572,6 +580,11 @@ posterior_samples <- matrix(0, nrow = length(samples), ncol = length(index[sampl
 for(i in 1:length(samples)){
   posterior_samples[i, ] = index[samples][[i]]
 }
+
+
+if (!require(tidyverse)) install.packages("tidyverse", dependencies = TRUE); suppressPackageStartupMessages(library(tidyverse))
+if (!require(devtools)) install.packages("devtools", dependencies = TRUE); suppressPackageStartupMessages(library(devtools))
+devtools::install_github("sarawade/mcclust.ext")
 
 library(mcclust.ext)
 sim_mat = comp.psm(posterior_samples)
@@ -606,15 +619,18 @@ if(length(singleton.index_mmclust2) > 0){
 }
 
 
-library(pals)
+if (!require(pals)) install.packages("pals", dependencies = TRUE); suppressPackageStartupMessages(library(pals))
 L.max = 30
 myvalues = unname(c(kelly(n = 22),
                     alphabet2(n = (L.max - 22))))
 
 
-library(patchwork)
-library(tidyverse)
-library(latex2exp)
+
+if (!require(patchwork)) install.packages("patchwork", dependencies = TRUE); suppressPackageStartupMessages(library(patchwork))
+if (!require(tidyverse)) install.packages("tidyverse", dependencies = TRUE); suppressPackageStartupMessages(library(tidyverse))
+if (!require(latex2exp)) install.packages("latex2exp", dependencies = TRUE); suppressPackageStartupMessages(library(latex2exp))
+if (!require(aricode)) install.packages("aricode", dependencies = TRUE); suppressPackageStartupMessages(library(aricode))
+
 ARI_pop = 0
 for(j in 1:J){
   ARI_pop[j] = aricode::ARI(k.true[[j]][t.true[[j]]],

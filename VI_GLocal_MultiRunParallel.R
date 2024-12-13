@@ -1,6 +1,6 @@
 source("GLocalVI.R") # Load the GLocal DP VI function
 # Load the necessary library for parallel execution
-library(parallel)
+if (!require(parallel)) install.packages("parallel", dependencies = TRUE); suppressPackageStartupMessages(library(parallel))
 # Define the number of cores to use
 numberOfCores <- detectCores() - 1  # Use one less than the total cores
 # Run the function in parallel
@@ -50,13 +50,15 @@ for(j in 1:J){
 }
 
 
-library(pals)
+if (!require(pals)) install.packages("pals", dependencies = TRUE); suppressPackageStartupMessages(library(pals))
+
 myvalues = unname(c(kelly(n = 22),
                     alphabet2(n = (8))))
 
 names(myvalues) = 1:30
 
-library(tidyverse)
+if (!require(tidyverse)) install.packages("tidyverse", dependencies = TRUE); suppressPackageStartupMessages(library(tidyverse))
+
 True_plot <- DATA.global_Est %>% ggplot(aes(x = X1, y = X2, col = Cluster.true)) + geom_point(size = 3) + labs(title = paste0("True global-level clusters")) + scale_color_manual(values = myvalues) + facet_grid(~Population.org) + 
   theme_minimal() +  
   theme(
@@ -107,6 +109,8 @@ Est_plot <- DATA.global_Est %>% ggplot(aes(x = X1, y = X2, col = Cluster.est)) +
 
 gridExtra::grid.arrange(True_plot, Est_plot)
 
+if (!require(aricode)) install.packages("aricode", dependencies = TRUE); suppressPackageStartupMessages(library(aricode))
+
 ARI_Local = 0
 ARI_Global = 0
 for(j in 1:J){
@@ -137,13 +141,15 @@ for(j in 1:J){
 }
 
 
-library(pals)
+if (!require(pals)) install.packages("pals", dependencies = TRUE); suppressPackageStartupMessages(library(pals))
+
 myvalues = unname(c(kelly(n = 22),
                     alphabet2(n = (8))))
 
 names(myvalues) = 1:30
 
-library(tidyverse)
+if (!require(tidyverse)) install.packages("tidyverse", dependencies = TRUE); suppressPackageStartupMessages(library(tidyverse))
+
 True_plot_Local <- DATA.local_Est %>% ggplot(aes(x = X1, y = X2, col = Cluster.true)) + geom_point(size = 3) + labs(title = paste0("True local-level clusters")) + scale_color_manual(values = myvalues) + facet_grid(~Population.org) + 
   theme_minimal() +  
   theme(
@@ -190,9 +196,14 @@ Est_plot_Local <- DATA.local_Est %>% ggplot(aes(x = X1, y = X2, col = Cluster.es
     legend.text=element_text(size=14)
   ) + guides(color = guide_legend(title = "Clusters"))
 
+if (!require(gridExtra)) install.packages("gridExtra", dependencies = TRUE); suppressPackageStartupMessages(library(gridExtra))
+
 plot_Global <- gridExtra::grid.arrange(True_plot, Est_plot)
 plot_Local <- gridExtra::grid.arrange(True_plot_Local, Est_plot_Local)
-library(grid)
+
+if (!require(grid)) install.packages("grid", dependencies = TRUE); suppressPackageStartupMessages(library(grid))
+if (!require(gridExtra)) install.packages("gridExtra", dependencies = TRUE); suppressPackageStartupMessages(library(gridExtra))
+
 gridExtra::grid.arrange(plot_Local, plot_Global, ncol = 2,
                         top = textGrob(paste0("Local variable dimensions = ", p.local[1],", ", p.local[2], ", ", p.local[3], ". Global variable dimension = ", p.global), ,gp=gpar(fontsize=20,font=3)))
 

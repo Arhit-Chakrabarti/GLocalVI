@@ -1,7 +1,8 @@
 rm(list = ls())
 # Generate the data
-library(extraDistr)
-library(MASS)
+if (!require(extraDistr)) install.packages("extraDistr", dependencies = TRUE); suppressPackageStartupMessages(library(extraDistr))
+if (!require(MASS)) install.packages("MASS", dependencies = TRUE); suppressPackageStartupMessages(library(MASS))
+
 J = 3
 L.local.true = c(3, 5, 4)
 L.global.true = 6 # true number of global groups in population
@@ -17,7 +18,7 @@ beta.true = as.numeric(rdirichlet(n = 1, alpha = rep(m.true/L.global.true, L.glo
 pi.true = lapply(1:J, function(j) {as.numeric(rdirichlet(n = 1, alpha = rep(alpha.true/L.local.true[j], L.local.true[j])))})
 
 # Sample sizes
-n = rep(200, J)
+n = rep(100, J)
 
 t.true = lapply(1:J, function(j){ sample(1:L.local.true[j], size = n[j], prob = pi.true[[j]], replace = TRUE)})
 
@@ -46,7 +47,7 @@ lambda.local.inv = 1/lambda.local
 
 lambda.global = 0.1
 lambda.global.inv = 1/lambda.global
-library(MASS)
+
 mu = lapply(1:J, function(j) rep(0, p.local[j]))
 
 mean.local.true = replicate(J, list()) 
@@ -56,7 +57,6 @@ for(i in 1:J){
 
 mean.global.true = t(sapply(1:L.global.true, function(j){mvrnorm(n = 1, mu = phi0, Sigma = lambda.global.inv * SigmaG0[,,j])}))# True mean global
 
-library(MASS)
 X = replicate(J, list())
 for(i in 1:J){
   X[[i]] = sapply(1:n[i], function(j){
@@ -86,14 +86,15 @@ for(j in 1:J){
   DATA.global = rbind(DATA.global, DATA[[j]])
 }
 
-library(pals)
+if (!require(pals)) install.packages("pals", dependencies = TRUE); suppressPackageStartupMessages(library(pals))
+
 L.max = 30
 myvalues = unname(c(kelly(n = 22),
                     alphabet2(n = (L.max - 22))))
 
 names(myvalues) = 1:L.max
 
-library(tidyverse)
+if (!require(tidyverse)) install.packages("tidyverse", dependencies = TRUE); suppressPackageStartupMessages(library(tidyverse))
 
 plot1 <- DATA.global %>% ggplot(aes(x = X1, y = X2, col = Cluster.true)) + geom_point(size = 3) + labs(title = paste0("True global-level clusters")) + scale_color_manual(values = myvalues) + facet_grid(~Population.org) + 
   theme_minimal() +  
