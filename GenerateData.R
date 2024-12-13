@@ -140,6 +140,8 @@ plot2 <- DATA.global %>% ggplot(aes(x = X2, y = X3, col = Cluster.true)) + geom_
     legend.text=element_text(size=14)
   ) + guides(color = guide_legend(title = "Clusters"))
 
+if (!require(gridExtra)) install.packages("gridExtra", dependencies = TRUE); suppressPackageStartupMessages(library(gridExtra))
+
 gridExtra::grid.arrange(plot1, plot2)
 
 

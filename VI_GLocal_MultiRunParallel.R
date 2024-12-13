@@ -107,6 +107,8 @@ Est_plot <- DATA.global_Est %>% ggplot(aes(x = X1, y = X2, col = Cluster.est)) +
     legend.text=element_text(size=14)
   ) + guides(color = guide_legend(title = "Clusters"))
 
+if (!require(gridExtra)) install.packages("gridExtra", dependencies = TRUE); suppressPackageStartupMessages(library(gridExtra))
+
 gridExtra::grid.arrange(True_plot, Est_plot)
 
 if (!require(aricode)) install.packages("aricode", dependencies = TRUE); suppressPackageStartupMessages(library(aricode))

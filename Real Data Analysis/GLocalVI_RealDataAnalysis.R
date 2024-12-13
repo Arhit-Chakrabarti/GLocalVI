@@ -1,5 +1,5 @@
-library(tidyverse)
-library(data.table)
+if (!require(tidyverse)) install.packages("tidyverse", dependencies = TRUE); suppressPackageStartupMessages(library(tidyverse))
+if (!require(data.table)) install.packages("data.table", dependencies = TRUE); suppressPackageStartupMessages(library(data.table))
 ################################################################################
 # READING THE PHENOTYPE DATA
 ################################################################################
@@ -16,7 +16,6 @@ rectal = fread("./Real Data Analysis/Data/Rectal_counts.tsv.gz")
 stomach = fread("./Real Data Analysis/Data/Stomach_counts.tsv.gz")
 eoso = fread("./Real Data Analysis/Data/Eoso_counts.tsv.gz")
 
-library(tidyverse)
 common.genes <- as.vector(intersect(intersect(intersect(colon[c(1:60483), 1], 
                                                         rectal[c(1:60483), 1]),
                                               stomach[c(1:60483), 1]),
@@ -51,7 +50,8 @@ all_data_merged <- rbind(colon_data,
 ################################################################################
 # PERFORM PCA ON THE COMBINED GENE EXPRESSION DATA
 ################################################################################
-library(irlba)
+if (!require(irlba)) install.packages("irlba", dependencies = TRUE); suppressPackageStartupMessages(library(irlba))
+
 pca.all = prcomp_irlba(all_data_merged, n = 10) # Top 10 PCs
 summary(pca.all) # Look at the summary of PCA
 
@@ -72,7 +72,6 @@ pca.eoso = X[which(rownames(X) %in% eoso_cov$submitter_id.samples), ]
 ################################################################################
 # PLOT THE PC DATA
 ################################################################################
-library(tidyverse)
 
 x.limit.lower <- min(X[, 1])
 x.limit.upper <- max(X[, 1])
@@ -170,7 +169,8 @@ plot4 = data.frame(pca.eoso) %>% ggplot(aes(x = PC1, y = PC2)) + geom_point() + 
     legend.title=element_text(size=16),
     legend.text=element_text(size=14)
   )
-library(gridExtra)
+
+if (!require(gridExtra)) install.packages("gridExtra", dependencies = TRUE); suppressPackageStartupMessages(library(gridExtra))
 gridExtra::grid.arrange(plot1, plot2, plot3, plot4, nrow = 2)
 
 ################################################################################
@@ -270,7 +270,7 @@ X.local = lapply(X.local, FUN = scale, scale = FALSE)
 ################################################################################
 source("GLocalVI.R") # Load the GLocal DP VI function
 # Load the necessary library for parallel execution
-library(parallel)
+if (!require(parallel)) install.packages("parallel", dependencies = TRUE); suppressPackageStartupMessages(library(parallel))
 # Define the number of cores to use
 numberOfCores <- detectCores() - 1  # Use one less than the total cores
 # Run the function in parallel
@@ -326,14 +326,15 @@ DATA.global_Est <- DATA.global_Est %>%
                                 Population == "Population 2" ~ 'Rectal Cancer',
                                 Population == "Population 3" ~ 'Colon Cancer',
                                 Population == "Population 4" ~ 'Esophageal Cancer'))
-library(pals)
+
+if (!require(pals)) install.packages("pals", dependencies = TRUE); suppressPackageStartupMessages(library(pals))
 myvalues = unname(c(kelly(n = 22),
                     alphabet2(n = (8))))
 
 names(myvalues) = 1:30
 
-library(tidyverse)
-library(latex2exp)
+if (!require(latex2exp)) install.packages("latex2exp", dependencies = TRUE); suppressPackageStartupMessages(library(latex2exp))
+
 Est_plot.global <- DATA.global_Est %>% ggplot(aes(x = PC1, y = PC2, col = Cluster.est)) + geom_point(size = 3) +  
   scale_color_manual(values = myvalues) + facet_grid(~Population) + 
   theme_minimal() +  
@@ -467,14 +468,14 @@ DATA.local_Est$Cluster.est.relabelled <- c(Local.cluster.stomach_relabelled,
                                            Local.cluster.rectal_relabelled,
                                            Local.cluster.colon_relabelled,
                                            Local.cluster.eoso_relabelled)
-library(pals)
+
 myvalues = unname(c(kelly(n = 22),
                     alphabet2(n = (26)),
                     alphabet(n = (10))))
 
 names(myvalues) = unique(DATA.local_Est$Cluster.est.relabelled)
 
-library(tidyverse)
+
 Est_plot.local <- DATA.local_Est %>% ggplot(aes(x = PC1, y = PC2, col = Cluster.est.relabelled)) + geom_point(size = 3) +  
   scale_color_manual(values = myvalues) + facet_grid(~Population) + 
   theme_minimal() +  
@@ -499,7 +500,9 @@ Est_plot.local <- DATA.local_Est %>% ggplot(aes(x = PC1, y = PC2, col = Cluster.
 
 Est_plot.local
 
-library(grid)
+if (!require(gridExtra)) install.packages("gridExtra", dependencies = TRUE); suppressPackageStartupMessages(library(gridExtra))
+if (!require(grid)) install.packages("grid", dependencies = TRUE); suppressPackageStartupMessages(library(grid))
+
 p.local = unlist(lapply(X.local, ncol))
 p.global = ncol(X.global[[1]])
 
@@ -510,7 +513,8 @@ gridExtra::grid.arrange(Est_plot.global, Est_plot.local, nrow = 2,
 ################################################################################
 ## PERFORM UMAP ON THE COMBINED GENE EXPRESSION DATA TO VISUALIZE THE CLUSTERS
 ################################################################################
-library(uwot)
+if (!require(uwot)) install.packages("uwot", dependencies = TRUE); suppressPackageStartupMessages(library(uwot))
+
 umap.all = uwot::umap(all_data_merged, n_neighbors = 30,
                       n_components = 2,
                       metric = "euclidean",
@@ -555,13 +559,11 @@ UMAP_DATA_Est <- rbind(data.frame(umap.stomach, Cluster.est = factor(est.k_jt[[1
 ################################################################################
 # GLOBAL VARIABLES BY GLOBAL-LEVEL CLUSTERS
 ################################################################################
-library(pals)
 myvalues = unname(c(kelly(n = 22),
                     alphabet2(n = (8))))
 
 names(myvalues) = 1:30
 
-library(latex2exp)
 Global_UMAP_Plot <- UMAP_DATA_Est %>% ggplot(aes(x = X1, y = X2, col = Cluster.est)) + geom_point(size = 3) +   
   scale_color_manual(values = myvalues) + facet_grid(~Cancer) + 
   theme_minimal() +  
@@ -587,7 +589,6 @@ Global_UMAP_Plot <- UMAP_DATA_Est %>% ggplot(aes(x = X1, y = X2, col = Cluster.e
 ################################################################################
 # GLOBAL VARIABLES BY LOCAL-LEVEL CLUSTERS
 ################################################################################
-library(pals)
 myvalues = unname(c(kelly(n = 22),
                     alphabet2(n = (26)),
                     alphabet(n = (10))))
@@ -630,7 +631,6 @@ gridExtra::grid.arrange(Global_UMAP_Plot, Local_UMAP_Plot, ncol = 1)
 ################################################################################
 # LOCAL VARIABLES KERNEL DENSITY/SCATTER PLOTS BY LOCAL-LEVEL CLUSTERS
 ################################################################################
-library(pals)
 myvalues = unname(c(kelly(n = 22),
                     alphabet2(n = (26)),
                     alphabet(n = (10))))
@@ -734,7 +734,6 @@ gridExtra::grid.arrange(Colon_Cancer_LocalVarPlot,
 ################################################################################
 ## LOCAL LEVEL KM ANALYSIS
 ################################################################################
-library(data.table)
 ################################################################################
 # READING THE PHENOTYPE DATA GAIN AS THE ORIGINAL DATA WAS MODIFED PREVIOSULY
 ################################################################################
@@ -749,8 +748,6 @@ colon_surv = fread("./Real Data Analysis/Data/Colon_Survival.txt")
 rectal_surv = fread("./Real Data Analysis/Data/Rectal_Survival.txt")
 stomach_surv = fread("./Real Data Analysis/Data/Stomach_Survival.txt")
 eoso_surv = fread("./Real Data Analysis/Data/Eoso_Survival.txt")
-
-library(tidyverse)
 
 mytheme <- theme_minimal() +  
   theme(
@@ -779,7 +776,8 @@ mytheme <- theme_minimal() +
 eoso.cluster <- DATA.local_Est %>% filter(Population == "Esophageal Cancer")
 eoso_merged_new <- left_join(eoso.cluster, eoso_merged, by = paste0("PC",1:10))
 
-library(stringr)
+if (!require(stringr)) install.packages("stringr", dependencies = TRUE); suppressPackageStartupMessages(library(stringr))
+
 eoso_merged_new$submitter_id.samples <- str_sub(eoso_merged_new$submitter_id.samples, end = -2)
 eoso_surv <- rename(eoso_surv, submitter_id.samples = sample)
 eoso_surv$submitter_id.samples <- str_sub(eoso_surv$submitter_id.samples, end = -2)
@@ -787,16 +785,12 @@ eoso_surv$submitter_id.samples <- str_sub(eoso_surv$submitter_id.samples, end = 
 eoso_merged_surv_new <- left_join(eoso_merged_new, eoso_surv, by = "submitter_id.samples")
 eoso_merged_surv_new <- eoso_merged_surv_new %>% dplyr::select(OS, OS.time, Cluster.est.relabelled)
 
-require("survival")
+if (!require(survival)) install.packages("survival", dependencies = TRUE); suppressPackageStartupMessages(library(survival))
+
 fit.eoso.local <- survfit(Surv(OS.time, OS) ~ Cluster.est.relabelled, data = eoso_merged_surv_new)
 
-library("survminer")
-library(pals)
-# myvalues = unname(c(kelly(n = 22),
-#                     alphabet2(n = (26)),
-#                     alphabet(n = (10))))
-# 
-# names(myvalues) = unique(DATA.local_Est$Cluster.est.relabelled)
+if (!require(survminer)) install.packages("survminer", dependencies = TRUE); suppressPackageStartupMessages(library(survminer))
+
 myvalues = unname(c(kelly(n = 22),
                     alphabet2(n = (10))))
 
@@ -814,7 +808,6 @@ os.eoso.local = ggsurvplot(fit.eoso.local, data = eoso_merged_surv_new, conf.int
 stomach.cluster <- DATA.local_Est %>% filter(Population == "Stomach Cancer")
 stomach_merged_new <- left_join(stomach.cluster, stomach_merged, by = paste0("PC",1:10))
 
-library(stringr)
 stomach_merged_new$submitter_id.samples <- str_sub(stomach_merged_new$submitter_id.samples, end = -2)
 stomach_surv <- rename(stomach_surv, submitter_id.samples = sample)
 stomach_surv$submitter_id.samples <- str_sub(stomach_surv$submitter_id.samples, end = -2)
@@ -822,12 +815,8 @@ stomach_surv$submitter_id.samples <- str_sub(stomach_surv$submitter_id.samples, 
 stomach_merged_surv_new <- left_join(stomach_merged_new, stomach_surv, by = "submitter_id.samples")
 stomach_merged_surv_new <- stomach_merged_surv_new %>% dplyr::select(OS, OS.time, Cluster.est.relabelled)
 
-require("survival")
 fit.stomach.local <- survfit(Surv(OS.time, OS) ~ Cluster.est.relabelled, data = stomach_merged_surv_new)
 
-library("survminer")
-
-library(pals)
 myvalues = unname(c(kelly(n = 22),
                     alphabet2(n = (10))))
 
@@ -845,18 +834,14 @@ os.stomach.local = ggsurvplot(fit.stomach.local, data = stomach_merged_surv_new,
 rectal.cluster <- DATA.local_Est %>% filter(Population == "Rectal Cancer")
 rectal_merged_new <- left_join(rectal.cluster, rectal_merged, by = paste0("PC",1:10))
 
-library(stringr)
 rectal_merged_new$submitter_id.samples <- str_sub(rectal_merged_new$submitter_id.samples, end = -2)
 rectal_surv <- rename(rectal_surv, submitter_id.samples = sample)
 
 rectal_merged_surv_new <- left_join(rectal_merged_new, rectal_surv, by = "submitter_id.samples")
 rectal_merged_surv_new <- rectal_merged_surv_new %>% dplyr::select(OS, OS.time, Cluster.est.relabelled)
 
-require("survival")
 fit.rectal.local <- survfit(Surv(OS.time, OS) ~ Cluster.est.relabelled, data = rectal_merged_surv_new)
 
-library("survminer")
-library(pals)
 myvalues = unname(c(kelly(n = 22),
                     alphabet2(n = (10))))
 
@@ -874,19 +859,14 @@ os.rectal.local = ggsurvplot(fit.rectal.local, data = rectal_merged_surv_new, co
 colon.cluster <- DATA.local_Est %>% filter(Population == "Colon Cancer")
 colon_merged_new <- left_join(colon.cluster, colon_merged, by = paste0("PC",1:10))
 
-library(stringr)
 colon_merged_new$submitter_id.samples <- str_sub(colon_merged_new$submitter_id.samples, end = -2)
 colon_surv <- rename(colon_surv, submitter_id.samples = sample)
 
 colon_merged_surv_new <- left_join(colon_merged_new, colon_surv, by = "submitter_id.samples")
 colon_merged_surv_new <- colon_merged_surv_new %>% dplyr::select(OS, OS.time, Cluster.est.relabelled)
 
-require("survival")
 fit.colon.local <- survfit(Surv(OS.time, OS) ~ Cluster.est.relabelled, data = colon_merged_surv_new)
 
-library("survminer")
-
-library(pals)
 myvalues = unname(c(kelly(n = 22),
                     alphabet2(n = (10))))
 
